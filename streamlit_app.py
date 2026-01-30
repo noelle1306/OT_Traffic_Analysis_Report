@@ -14,7 +14,7 @@ NORMAL_FILE = r"C:\Users\23012197\Documents\ot-ml-modbus\data\processed\normal_f
 ISO_FOREST_REPORT = r"C:\Users\23012197\Documents\ot-ml-modbus\data\processed\iso_forest_report.csv"
 
 st.set_page_config(page_title="OT Network Traffic Analysis", layout="wide")
-#st.title("Network Traffic Analysis Report Using Isolation Forest")
+
 
 # === SIDEBAR NAVIGATION ===
 st.sidebar.title("Navigation")
