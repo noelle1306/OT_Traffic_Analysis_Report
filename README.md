@@ -4,7 +4,6 @@ This repository contains a pipeline for detecting anomalies in OT Modbus TCP tra
 
 ## Notes
 
-- Please unzip attack features.zip to have the uncompressed old version of `attack_features.csv` due to the size being too large when adding to GitHub
 - As the website is using Streamlit, do click on this website to see it
 
 ## Features
@@ -152,5 +151,6 @@ streamlit run streamlit_app.py
 ```
 
 The app reads `normal_features.csv` and `iso_forest_report.csv` from `data/processed` to render interactive visualizations and alerts.
+
 
 
