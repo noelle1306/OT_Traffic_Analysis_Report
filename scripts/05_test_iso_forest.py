@@ -2,7 +2,7 @@ import pandas as pd
 import joblib
 
 # === CONFIGURATION ===
-TEST_FILE = r"data/processed/normal_features.csv/attack_features.csv"
+TEST_FILE = r"data/processed/attack_features.csv"
 MODEL_PATH = r"models/iso_forest.pkl"
 
 # YOUR WHITELIST (Update this with your factory's IPs)
@@ -77,4 +77,5 @@ def main():
     anomalies.to_csv(r"data/processed/iso_forest_report.csv", index=False)
 
 if __name__ == "__main__":
+
     main()
