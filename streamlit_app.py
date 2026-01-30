@@ -10,9 +10,8 @@ import requests
 
 # To launch the dashboard, PLEASE run: python -m streamlit run streamlit_app.py or streamlit run streamlit_app.py
 # === CONFIGURATION ===
-NORMAL_FILE = r"data/processed/normal_features.csv"
-ISO_FOREST_REPORT = r"data/processed/iso_forest_report.csv"
-
+NORMAL_FILE = r"C:\Users\23012197\Documents\ot-ml-modbus\data\processed\normal_features.csv"
+ISO_FOREST_REPORT = r"C:\Users\23012197\Documents\ot-ml-modbus\data\processed\iso_forest_report.csv"
 
 st.set_page_config(page_title="OT Network Traffic Analysis", layout="wide")
 
@@ -59,11 +58,25 @@ if page == "📊 Dashboard":
             labels=counts.index,
             values=counts.values,
             marker=dict(colors=pie_colors, line=dict(color='#c0c0c0', width=2)),
-            pull=[0.05] * len(counts)
+            pull=[0.05] * len(counts),
+            # Force text outside and format it to show percentage
+            textinfo='percent',
+            textposition='outside', 
+            rotation=90          
         )])
-        fig.update_layout(title=f"Traffic Overview (Total: {total_packets:,})") 
+        fig.update_layout(
+            title={
+                'text': f"Traffic Overview (Total: {total_packets:,})",
+                'y': 0.95,
+                'xanchor': 'left',
+                'yanchor': 'top'
+            },
+            margin=dict(t=100, b=50, l=50, r=50), # Adds top padding to prevent overlap
+            showlegend=True,
+            legend=dict(orientation="v", yanchor="middle", y=0.5, x=1.1) # Positions legend to the right
+        )
         
-        col1, col2, col3 = st.columns([1, 2.5, 1]) 
+        col1, col2, col3 = st.columns([1, 4, 1]) 
         with col2:
             st.plotly_chart(fig, use_container_width=True)
 
