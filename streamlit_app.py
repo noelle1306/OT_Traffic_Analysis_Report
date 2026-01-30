@@ -37,14 +37,17 @@ if page == "📊 Dashboard":
             st.toast(f"🚨 ALERT: {num_critical} Critical Threats Detected!", icon="⚠️")
             # Can also add a persistent warning box for visibility
             st.error(f"CRITICAL SECURITY ALERT: {num_critical} unauthorized stop commands or severe anomalies found. Immediate action required!")
-        
+               
+
+        # 1. Interactive Pie Chart
+        st.subheader("📈 Traffic Overview")
         normal_count = len(normal_df) 
         anomaly_counts = anomaly_df['threat_type'].value_counts().to_dict()
         combined_counts = {"Normal Traffic": normal_count} 
         combined_counts.update(anomaly_counts) 
         counts = pd.Series(combined_counts) 
         total_packets = normal_count + len(anomaly_df) 
-        # 1. Interactive Pie Chart 
+
         colors = {
             "Normal Traffic": "#90EE90",
             "CRITICAL: UNAUTHORIZED STOP COMMAND": "#cc0000",
@@ -54,31 +57,23 @@ if page == "📊 Dashboard":
         }
         pie_colors = [colors.get(x, "#c0c0c0") for x in counts.index]
 
-        fig = go.Figure(data=[go.Pie(
+        fig_pie = go.Figure(data=[go.Pie(
             labels=counts.index,
             values=counts.values,
             marker=dict(colors=pie_colors, line=dict(color='#c0c0c0', width=2)),
             pull=[0.05] * len(counts),
-            # Force text outside and format it to show percentage
-            textinfo='percent',
-            textposition='outside', 
-            rotation=90          
+            customdata=counts.index # Pass label for filtering
         )])
-        fig.update_layout(
-            title={
-                'text': f"Traffic Overview (Total: {total_packets:,})",
-                'y': 0.95,
-                'xanchor': 'left',
-                'yanchor': 'top'
-            },
-            margin=dict(t=100, b=50, l=50, r=50), # Adds top padding to prevent overlap
-            showlegend=True,
-            legend=dict(orientation="v", yanchor="middle", y=0.5, x=1.1) # Positions legend to the right
-        )
+        fig_pie.update_layout(title=f"Traffic Overview (Total: {total_packets:,})") 
         
-        col1, col2, col3 = st.columns([1, 4, 1]) 
-        with col2:
-            st.plotly_chart(fig, use_container_width=True)
+        # Enable Selection
+        event = st.plotly_chart(fig_pie, use_container_width=True, on_select="rerun", key="pie_drilldown")
+        
+        # Handle the Drill-down filtering
+        selected_label = None
+        if event and "selection" in event and event["selection"]["points"]:
+            selected_label = event["selection"]["points"][0]["label"]
+            st.info(f"🔎 Filtering for: **{selected_label}**")
 
         # 2. Attack Breakdown Bar Chart 
         st.subheader("📊 Attack Breakdown by Type")
@@ -117,10 +112,26 @@ if page == "📊 Dashboard":
         breakdown_df = pd.DataFrame(breakdown_data)
         st.dataframe(breakdown_df, use_container_width=True)
 
-        # 5. Detailed Detected Anomaly Table
+       # Show colored threat type boxes
+        threat_types = anomaly_df['threat_type'].unique()
+        t_cols = st.columns(len(threat_types) if len(threat_types) > 0 else 1) 
+
+        for idx, t_type in enumerate(threat_types):
+            with t_cols[idx]:
+                t_count = len(anomaly_df[anomaly_df['threat_type'] == t_type]) 
+                t_color = colors.get(t_type, "#d9d9d9") 
+                st.markdown(f"""
+                    <div style="border-left: 4px solid {t_color}; padding: 12px; background-color: #f9f9f9; border-radius: 5px;">
+                        <h4 style="margin: 0; color: {t_color};">{t_type}</h4>
+                        <p style="margin: 5px 0 0 0; font-size: 20px; font-weight: bold;">{t_count} packets</p>
+                    </div>
+                """, unsafe_allow_html=True) 
+
+        # 6. Detailed Detected Anomaly Table
         st.divider()
         st.subheader("🚨 Detected Anomalies")
         st.caption("Use the search function to search for a specific IP address or threat type. Able to download the table as CSV using the top-right menu.")
+        
         anomaly_df_display = anomaly_df.rename(columns={
             'delta_time': 'Time Gap (s)', 'packet_length': 'Packet Length', 'src_ip_int': 'Source IP (numeric)',
             'src_ip_str': 'Source IP (string)', 'function_code': 'Function Code', 'label': 'Label', 
@@ -128,7 +139,7 @@ if page == "📊 Dashboard":
         })
         st.dataframe(anomaly_df_display, use_container_width=True)
 
-        # 6. Function Code Interpretation Table and Chart
+        # 7. Function Code Interpretation Table and Chart
         st.divider()
         st.subheader("🔍 Function Code Analysis")
         
@@ -188,25 +199,7 @@ if page == "📊 Dashboard":
                                        margin=dict(t=50)) # Adds extra space at top for labels
                 st.plotly_chart(fc_chart, use_container_width=True)
         else:
-            st.warning("Function code column not found in dataset.")
-
-        # 7. Color-coded Threat Cards 
-        st.divider()
-        st.subheader("📋 Anomalies by Threat Type")
-        st.write("Shows number of packets for each anomaly detected.")
-        threat_types = anomaly_df['threat_type'].unique()
-        t_cols = st.columns(len(threat_types) if len(threat_types) > 0 else 1) 
-
-        for idx, t_type in enumerate(threat_types):
-            with t_cols[idx]:
-                t_count = len(anomaly_df[anomaly_df['threat_type'] == t_type]) 
-                t_color = colors.get(t_type, "#d9d9d9") 
-                st.markdown(f"""
-                    <div style="border-left: 4px solid {t_color}; padding: 12px; background-color: #f9f9f9; border-radius: 5px;">
-                        <h4 style="margin: 0; color: {t_color};">{t_type}</h4>
-                        <p style="margin: 5px 0 0 0; font-size: 20px; font-weight: bold;">{t_count} packets</p>
-                    </div>
-                """, unsafe_allow_html=True) 
+            st.warning("Function code column not found in dataset.")        
 
     except FileNotFoundError as e:
         st.error(f"Error: {e}. Run analysis scripts first!") 
