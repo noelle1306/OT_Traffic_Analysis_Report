@@ -10,7 +10,7 @@ ATTACK_DIR = r"data/attack_pcaps
 
 # OUTPUT FILES
 OUTPUT_NORMAL = r"data/processed/normal_features.csv"
-OUTPUT_ATTACK = r"data/processed/normal_features.csv/attack_features.csv"
+OUTPUT_ATTACK = r"data/processed/attack_features.csv"
 
 # === PERFORMANCE SETTINGS ===
 NORMAL_LIMIT = None       
