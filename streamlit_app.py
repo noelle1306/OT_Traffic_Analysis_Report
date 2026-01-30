@@ -10,8 +10,9 @@ import requests
 
 # To launch the dashboard, PLEASE run: python -m streamlit run streamlit_app.py or streamlit run streamlit_app.py
 # === CONFIGURATION ===
-NORMAL_FILE = r"C:\Users\23012197\Documents\ot-ml-modbus\data\processed\normal_features.csv"
-ISO_FOREST_REPORT = r"C:\Users\23012197\Documents\ot-ml-modbus\data\processed\iso_forest_report.csv"
+NORMAL_FILE = r"data/processed/normal_features.csv"
+ISO_FOREST_REPORT = r"data/processed/iso_forest_report.csv"
+
 
 st.set_page_config(page_title="OT Network Traffic Analysis", layout="wide")
 
