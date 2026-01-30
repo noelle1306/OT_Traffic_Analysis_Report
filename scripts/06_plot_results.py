@@ -3,8 +3,8 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 
 # === CONFIGURATION ===
-NORMAL_FILE = r"C:\Users\23012197\Documents\ot-ml-modbus\data\processed\normal_features.csv"
-ISO_FOREST_REPORT = r"C:\Users\23012197\Documents\ot-ml-modbus\data\processed\iso_forest_report.csv"
+NORMAL_FILE = r"data/processed/normal_features.csv"
+ISO_FOREST_REPORT = r"data/processed/iso_forest_report.csv"
 
 def main():
     # 1. Load Data

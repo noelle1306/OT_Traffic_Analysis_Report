@@ -3,7 +3,7 @@ import os
 import glob
 
 # Directory path
-pcap_dir = r"C:\Users\23012197\Documents\ot-ml-modbus\data\raw_pcaps"
+pcap_dir = r"data/raw_pcaps"
 
 # Find all files
 files = [f for f in glob.glob(os.path.join(pcap_dir, "*")) if f.endswith(".pcap") or f.endswith(".pcapng")]

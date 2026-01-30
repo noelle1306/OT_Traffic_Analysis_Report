@@ -3,8 +3,8 @@ from sklearn.ensemble import IsolationForest
 import joblib
 
 # === PATHS ===
-INPUT_FILE = r"C:\Users\23012197\Documents\ot-ml-modbus\data\processed\normal_features.csv"
-MODEL_PATH = r"C:\Users\23012197\Documents\ot-ml-modbus\models\iso_forest.pkl"
+INPUT_FILE = r"data/processed/normal_features.csv"
+MODEL_PATH = r"models/iso_forest.pkl"
 
 def main():
     print("Loading Normal Training Data...")

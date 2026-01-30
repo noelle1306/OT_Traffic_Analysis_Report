@@ -4,9 +4,9 @@ from sklearn.preprocessing import StandardScaler
 import joblib
 
 # === PATHS ===
-INPUT_FILE = r"C:\Users\23012197\Documents\ot-ml-modbus\data\processed\normal_features.csv"
-MODEL_PATH = r"C:\Users\23012197\Documents\ot-ml-modbus\models\ocsvm_model.pkl"
-SCALER_PATH = r"C:\Users\23012197\Documents\ot-ml-modbus\models\ocsvm_model_scaler.pkl"
+INPUT_FILE = r"data/processed/normal_features.csv"
+MODEL_PATH = r"models/ocsvm_model.pkl"
+SCALER_PATH = r"models/ocsvm_model_scaler.pkl"
 
 def main():
     print("Loading Normal Training Data...")

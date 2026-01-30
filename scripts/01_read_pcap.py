@@ -4,7 +4,7 @@ import glob
 
 # === CONFIGURATION ===
 # Pointing to the directory containing all your raw PCAP files
-PCAP_DIR = r"C:\Users\23012197\Documents\ot-ml-modbus\data\raw_pcaps"
+PCAP_DIR = r"data/raw_pcaps"
 
 def preview_pcap(pcap_path):
     print(f"\nReading: {os.path.basename(pcap_path)}")

@@ -5,12 +5,12 @@ import glob
 import ipaddress
 
 # === CONFIGURATION ===
-NORMAL_DIR = r"C:\Users\23012197\Documents\ot-ml-modbus\data\raw_pcaps"
-ATTACK_DIR = r"C:\Users\23012197\Documents\ot-ml-modbus\data\attack_pcaps"
+NORMAL_DIR = r"data/raw_pcaps"
+ATTACK_DIR = r"data/attack_pcaps
 
 # OUTPUT FILES
-OUTPUT_NORMAL = r"C:\Users\23012197\Documents\ot-ml-modbus\data\processed\normal_features.csv"
-OUTPUT_ATTACK = r"C:\Users\23012197\Documents\ot-ml-modbus\data\processed\attack_features.csv"
+OUTPUT_NORMAL = r"data/processed/normal_features.csv"
+OUTPUT_ATTACK = r"data/processed/normal_features.csv/attack_features.csv"
 
 # === PERFORMANCE SETTINGS ===
 NORMAL_LIMIT = None       

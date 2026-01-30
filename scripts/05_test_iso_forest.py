@@ -2,8 +2,8 @@ import pandas as pd
 import joblib
 
 # === CONFIGURATION ===
-TEST_FILE = r"C:\Users\23012197\Documents\ot-ml-modbus\data\processed\attack_features.csv"
-MODEL_PATH = r"C:\Users\23012197\Documents\ot-ml-modbus\models\iso_forest.pkl"
+TEST_FILE = r"data/processed/normal_features.csv/attack_features.csv"
+MODEL_PATH = r"models/iso_forest.pkl"
 
 # YOUR WHITELIST (Update this with your factory's IPs)
 ALLOWED_IPS = ['192.168.206.1', '192.168.206.20', '192.168.206.40']
@@ -74,7 +74,7 @@ def main():
         print("-" * 60)
 
     # Save
-    anomalies.to_csv(r"C:\Users\23012197\Documents\ot-ml-modbus\data\processed\iso_forest_report.csv", index=False)
+    anomalies.to_csv(r"data/processed/iso_forest_report.csv", index=False)
 
 if __name__ == "__main__":
     main()

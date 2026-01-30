@@ -2,9 +2,9 @@ import pandas as pd
 import joblib
 
 # === CONFIGURATION ===
-TEST_FILE = r"C:\Users\23012197\Documents\ot-ml-modbus\data\processed\attack_features.csv"
-MODEL_PATH = r"C:\Users\23012197\Documents\ot-ml-modbus\models\ocsvm_model.pkl"
-SCALER_PATH = r"C:\Users\23012197\Documents\ot-ml-modbus\models\ocsvm_model_scaler.pkl"
+TEST_FILE = r"data/processed/attack_features.csv"
+MODEL_PATH = r"models/ocsvm_model.pkl"
+SCALER_PATH = r"models/ocsvm_model_scaler.pkl"
 
 # YOUR WHITELIST (Update this with your factory's IPs)
 ALLOWED_IPS = ['192.168.206.1', '192.168.206.20', '192.168.206.40']
@@ -79,7 +79,7 @@ def main():
         print(f"    -> Sample IP: {sample['src_ip_str']} | FuncCode: {sample.get('function_code', 'N/A')}")
         print("-" * 60)
 
-    anomalies.to_csv(r"C:\Users\23012197\Documents\ot-ml-modbus\data\processed\ocsvm_report.csv", index=False)
+    anomalies.to_csv(r"data/processed/ocsvm_report.csv", index=False)
 
 if __name__ == "__main__":
     main()
