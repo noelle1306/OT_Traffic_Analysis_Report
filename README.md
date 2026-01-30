@@ -106,6 +106,8 @@ Place normal PCAP files in `data/raw_pcaps` and attack PCAP files in `data/attac
 
 ```bash
 python 01_read_pcap.py
+```
+```bash
 python 02_filter_modbus.py
 ```
 
@@ -150,3 +152,4 @@ streamlit run streamlit_app.py
 ```
 
 The app reads `normal_features.csv` and `iso_forest_report.csv` from `data/processed` to render interactive visualizations and alerts.
+
