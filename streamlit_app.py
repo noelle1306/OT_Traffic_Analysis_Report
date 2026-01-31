@@ -177,7 +177,7 @@ if page == "📊 Dashboard":
         # Optional: Button to save the classification to a new CSV
         if st.button("💾 Save Classifications"):
             edited_df.to_csv("data/processed/classified_anomalies.csv", index=False)
-            st.success("Classification report saved!")
+            st.success("Classification report saved to processed folder!")
 
         # Comparison Chart
         class_counts = edited_df['Classification'].value_counts()
@@ -320,3 +320,4 @@ elif page == "🤖 Cyber Assistant":
         st.session_state.messages.append({"role": "user", "content": user_input})
         st.session_state.generate_response = True
         st.rerun()
+
