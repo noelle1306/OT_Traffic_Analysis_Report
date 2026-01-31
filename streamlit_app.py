@@ -88,7 +88,7 @@ if page == "📊 Dashboard":
             marker=dict(color=[colors.get(t, "#d9d9d9") for t in anomaly_df_for_chart['Threat Type']]),            
             hoverinfo='text',
             text=anomaly_df_for_chart['Packets'],
-            textposition='auto'
+            textposition='outside'
         )])
         bar_fig.update_layout(xaxis_title="Number of Packets", yaxis_title="Threat Type") 
         st.plotly_chart(bar_fig, use_container_width=True)
@@ -100,6 +100,7 @@ if page == "📊 Dashboard":
         m1.metric("Normal Traffic", f"{normal_count:,}", f"{100*normal_count/total_packets:.1f}%")
         m2.metric("Anomalies Detected", f"{len(anomaly_df):,}", f"{100*len(anomaly_df)/total_packets:.1f}%", delta_color="inverse")
 
+       
         # 4. Anomaly Breakdown Table
         st.divider()
         st.subheader("Anomaly Breakdown")
@@ -110,9 +111,9 @@ if page == "📊 Dashboard":
         }
 
         breakdown_df = pd.DataFrame(breakdown_data)
-        st.dataframe(breakdown_df, use_container_width=True)
+        st.dataframe(breakdown_df, use_container_width=True, hide_index=True)
 
-       # Show colored threat type boxes
+       # 5. Show colored threat type boxes
         threat_types = anomaly_df['threat_type'].unique()
         t_cols = st.columns(len(threat_types) if len(threat_types) > 0 else 1) 
 
@@ -127,21 +128,70 @@ if page == "📊 Dashboard":
                     </div>
                 """, unsafe_allow_html=True) 
 
-        # 6. Detailed Detected Anomaly Table
+        # 6. Detailed Detected Anomaly Table with Classification
         st.divider()
-        st.subheader("🚨 Detected Anomalies")
-        st.caption("Use the search function to search for a specific IP address or threat type. Able to download the table as CSV using the top-right menu.")
-        
-        anomaly_df_display = anomaly_df.rename(columns={
-            'delta_time': 'Time Gap (s)', 'packet_length': 'Packet Length', 'src_ip_int': 'Source IP (numeric)',
-            'src_ip_str': 'Source IP (string)', 'function_code': 'Function Code', 'label': 'Label', 
-            'anomaly': 'Anomaly', 'threat_type': 'Threat Type'
-        })
-        st.dataframe(anomaly_df_display, use_container_width=True)
+        st.subheader("🚨 Anomaly Classification: Malicious vs. Faulty")
+        st.caption("Review the detected anomalies and classify them based on OT context.")
+
+        # Prepare the display dataframe
+        anomaly_df_display = anomaly_df.copy()
+
+        # Add a 'Classification' column if it doesn't exist
+        if 'Classification' not in anomaly_df_display.columns:
+            # Updated Pre-fill logic for Anomaly Classification
+            def classify_threat(threat_str):
+                threat_str = str(threat_str).upper() # Ensure case-insensitivity
+    
+                # 1. Check for Malicious indicators
+                if any(kw in threat_str for kw in ["CRITICAL", "DoS", "FOREIGN"]):
+                    return "Malicious"
+    
+                # 2. Specifically isolate Unknown/Statistical anomalies for investigation
+                elif "UNKNOWN ANOMALY" in threat_str or "STATISTICAL" in threat_str:
+                    return "Requires Investigation"
+    
+                 # 3. Everything else defaults to Faulty
+                else:
+                    return "Faulty"
+
+            # Apply the new function to your display dataframe
+            anomaly_df_display['Classification'] = anomaly_df_display['threat_type'].apply(classify_threat)
+
+        # Use st.data_editor to allow user input
+        edited_df = st.data_editor(
+        anomaly_df_display,
+        column_config={
+            "Classification": st.column_config.SelectboxColumn(
+                "Classification",
+                help="Categorize this anomaly",
+                options=["Malicious", "Faulty", "Requires Investigation"],
+                required=True,
+            )
+        },   
+
+        disabled=["threat_type", "packet_length", "src_ip_str"], # Lock raw data
+        hide_index=True,
+        use_container_width=True
+        )   
+
+        # Optional: Button to save the classification to a new CSV
+        if st.button("💾 Save Classifications"):
+            edited_df.to_csv("data/processed/classified_anomalies.csv", index=False)
+            st.success("Classification report saved!")
+
+        # Comparison Chart
+        class_counts = edited_df['Classification'].value_counts()
+        fig_class = go.Figure(data=[go.Bar(
+            x=class_counts.index,
+            y=class_counts.values,
+            marker_color=['#ff4b4b', '#00cc96'] # Red for Malicious, Green for Faulty
+        )])
+        fig_class.update_layout(title="Malicious vs. Faulty Distribution", height=300)
+        st.plotly_chart(fig_class, use_container_width=True)
 
         # 7. Function Code Interpretation Table and Chart
         st.divider()
-        st.subheader("🔍 Function Code Analysis")
+        st.subheader("🔍 Function Code Analysis")   
         
         # Define the Modbus Function Code Mapping
         function_code_map = {
@@ -181,7 +231,8 @@ if page == "📊 Dashboard":
             col_a, col_b = st.columns([1, 1])
             with col_a:
                 st.write("Modbus operations found in traffic:")
-                st.table(fc_df)
+                # Use st.dataframe instead of st.table to allow hiding the index
+                st.dataframe(fc_df, hide_index=True, use_container_width=True)
             
             with col_b:
                 # Optional: A small bar chart showing the distribution of function codes
@@ -199,7 +250,7 @@ if page == "📊 Dashboard":
                                        margin=dict(t=50)) # Adds extra space at top for labels
                 st.plotly_chart(fc_chart, use_container_width=True)
         else:
-            st.warning("Function code column not found in dataset.")        
+            st.warning("Function code column not found in dataset.")             
 
     except FileNotFoundError as e:
         st.error(f"Error: {e}. Run analysis scripts first!") 
@@ -252,7 +303,7 @@ elif page == "🤖 Cyber Assistant":
                 else:
                     ai_reply = f"⚠️ Server Error: {http_err}"
                 
-            except Exception as e:
+            except Exception as e:  
              # This catches the "Expecting value: line 1 column 1" error 
                 # and replaces it with a user-friendly message.
                 if "Expecting value" in str(e):
