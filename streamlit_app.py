@@ -169,7 +169,7 @@ if page == "📊 Dashboard":
             )
         },   
 
-        disabled=[ "threat_type", "packet_length", "src_ip_str", "delta_time", "src_tp_int", "function_code", "label", "anomaly"], # Lock raw data
+        disabled=[ "threat_type", "packet_length", "src_ip_str", "delta_time", "src_ip_int", "function_code", "label", "anomaly"], # Lock raw data
         hide_index=True,
         use_container_width=True
         )   
@@ -320,5 +320,6 @@ elif page == "🤖 Cyber Assistant":
         st.session_state.messages.append({"role": "user", "content": user_input})
         st.session_state.generate_response = True
         st.rerun()
+
 
 
