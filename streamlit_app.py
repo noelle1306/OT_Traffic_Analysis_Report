@@ -176,8 +176,17 @@ if page == "📊 Dashboard":
 
         # Optional: Button to save the classification to a new CSV
         if st.button("💾 Save Classifications"):
-            edited_df.to_csv("data/processed/classified_anomalies.csv", index=False)
-            st.success("Classification report saved to processed folder!")
+            # 1. Create a timestamp string (e.g., 20260201_2245) 24 hour format
+            timestamp = datetime.datetime.now().strftime("%Y%m%d_%H%M")
+
+            # 2. Construct the new filename
+            filename = f"data/processed/classified_anomalies_{timestamp}.csv"
+    
+            # 3. Ensure folder exists and save
+            os.makedirs("data/processed", exist_ok=True)
+            edited_df.to_csv(filename, index=False)
+    
+            st.success(f"✅ Report saved as: {filename} to processed folder!")
 
         # Comparison Chart
         class_counts = edited_df['Classification'].value_counts()
@@ -320,6 +329,7 @@ elif page == "🤖 Cyber Assistant":
         st.session_state.messages.append({"role": "user", "content": user_input})
         st.session_state.generate_response = True
         st.rerun()
+
 
 
 
