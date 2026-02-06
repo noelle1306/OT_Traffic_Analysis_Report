@@ -6,11 +6,11 @@ import plotly.graph_objects as go
 import sys
 import os
 import requests
+import datetime
 
 
 # To launch the dashboard, PLEASE run: python -m streamlit run streamlit_app.py or streamlit run streamlit_app.py
 # === CONFIGURATION ===
-NORMAL_FILE = r"data/processed/normal_features.csv"
 ISO_FOREST_REPORT = r"data/processed/iso_forest_report.csv"
 
 st.set_page_config(page_title="OT Network Traffic Analysis", layout="wide")
@@ -26,7 +26,7 @@ if page == "📊 Dashboard":
 
     # Load Data 
     try:
-        normal_df = pd.read_csv(NORMAL_FILE) 
+        
         anomaly_df = pd.read_csv(ISO_FOREST_REPORT) 
         # --- AUTOMATED ALERT SYSTEM ---
         # Check for critical threats in the loaded anomaly data
@@ -39,17 +39,12 @@ if page == "📊 Dashboard":
             st.error(f"CRITICAL SECURITY ALERT: {num_critical} unauthorized stop commands or severe anomalies found. Immediate action required!")
                
 
-        # 1. Interactive Pie Chart
+        # === 1. Interactive Pie Chart ===
         st.subheader("📈 Traffic Overview")
-        normal_count = len(normal_df) 
-        anomaly_counts = anomaly_df['threat_type'].value_counts().to_dict()
-        combined_counts = {"Normal Traffic": normal_count} 
-        combined_counts.update(anomaly_counts) 
-        counts = pd.Series(combined_counts) 
-        total_packets = normal_count + len(anomaly_df) 
+        counts = anomaly_df['threat_type'].value_counts()
+        total_packets = len(anomaly_df) 
 
         colors = {
-            "Normal Traffic": "#90EE90",
             "CRITICAL: UNAUTHORIZED STOP COMMAND": "#cc0000",
             "FOREIGN IP ACCESS": "#ff0000",
             "DoS ATTACK (High Volume)": "#1900ff",
@@ -61,10 +56,10 @@ if page == "📊 Dashboard":
             labels=counts.index,
             values=counts.values,
             marker=dict(colors=pie_colors, line=dict(color='#c0c0c0', width=2)),
-            pull=[0.05] * len(counts),
+            pull=[0.1] * len(counts),
             customdata=counts.index # Pass label for filtering
         )])
-        fig_pie.update_layout(title=f"Traffic Overview (Total: {total_packets:,})") 
+        fig_pie.update_layout(title=f"Total Anomalies Detected: {total_packets:,}")
         
         # Enable Selection
         event = st.plotly_chart(fig_pie, use_container_width=True, on_select="rerun", key="pie_drilldown")
@@ -75,10 +70,10 @@ if page == "📊 Dashboard":
             selected_label = event["selection"]["points"][0]["label"]
             st.info(f"🔎 Filtering for: **{selected_label}**")
 
-        # 2. Attack Breakdown Bar Chart 
+        # ==== 2. Attack Breakdown Bar Chart ===
         st.subheader("📊 Attack Breakdown by Type")
         anomaly_counts_dict = anomaly_df['threat_type'].value_counts().to_dict()
-        anomaly_df_for_chart = pd.DataFrame(list(anomaly_counts.items()), columns=['Threat Type', 'Packets'])
+        anomaly_df_for_chart = pd.DataFrame(list(anomaly_counts_dict.items()), columns=['Threat Type', 'Packets'])
         anomaly_df_for_chart = anomaly_df_for_chart.sort_values('Packets', ascending=True) 
         
         bar_fig = go.Figure(data=[go.Bar(
@@ -93,27 +88,28 @@ if page == "📊 Dashboard":
         bar_fig.update_layout(xaxis_title="Number of Packets", yaxis_title="Threat Type") 
         st.plotly_chart(bar_fig, use_container_width=True)
 
-        # 3. Traffic Report in Numbers
+        # === 3. Traffic Report in Numbers ===
         st.divider()
-        st.subheader("Traffic Report")
+        st.subheader("Anomaly Summary")
         m1, m2 = st.columns(2)
-        m1.metric("Normal Traffic", f"{normal_count:,}", f"{100*normal_count/total_packets:.1f}%")
-        m2.metric("Anomalies Detected", f"{len(anomaly_df):,}", f"{100*len(anomaly_df)/total_packets:.1f}%", delta_color="inverse")
+        critical_count = len(anomaly_df[anomaly_df['threat_type'].str.contains("CRITICAL", na=False)])
+        m1.metric("Total Anomalies", f"{len(anomaly_df):,}", f"{100*len(anomaly_df)/total_packets:.1f}%",)
+        m2.metric("Critical Threats", f"{critical_count:,}", f"{100*critical_count/total_packets:.1f}%", delta_color="inverse")
 
        
-        # 4. Anomaly Breakdown Table
+        # === 4. Anomaly Breakdown Table ===
         st.divider()
         st.subheader("Anomaly Breakdown")
         st.caption("Able to download the table as CSV using the top-right menu.")
         breakdown_data = {
-        "Normal/Anomaly Traffic": counts.index,
+        "Anomaly Traffic": counts.index,
             "Packet Count": counts.values
         }
 
         breakdown_df = pd.DataFrame(breakdown_data)
         st.dataframe(breakdown_df, use_container_width=True, hide_index=True)
 
-       # 5. Show colored threat type boxes
+       # === 5. Show colored threat type boxes ===
         threat_types = anomaly_df['threat_type'].unique()
         t_cols = st.columns(len(threat_types) if len(threat_types) > 0 else 1) 
 
@@ -128,7 +124,7 @@ if page == "📊 Dashboard":
                     </div>
                 """, unsafe_allow_html=True) 
 
-        # 6. Detailed Detected Anomaly Table with Classification
+        # === 6. Detailed Detected Anomaly Table with Classification ===
         st.divider()
         st.subheader("🚨 Anomaly Classification: Malicious vs. Faulty")
         st.caption("Review the detected anomalies and classify them based on OT context.")
@@ -166,7 +162,7 @@ if page == "📊 Dashboard":
                 help="Categorize this anomaly",
                 options=["Malicious", "Faulty", "Requires Investigation"],
                 required=True,
-            )
+            )            
         },   
 
         disabled=[ "threat_type", "packet_length", "src_ip_str", "delta_time", "src_ip_int", "function_code", "label", "anomaly"], # Lock raw data
@@ -198,7 +194,7 @@ if page == "📊 Dashboard":
         fig_class.update_layout(title="Malicious vs. Faulty Distribution", height=300)
         st.plotly_chart(fig_class, use_container_width=True)
 
-        # 7. Function Code Interpretation Table and Chart
+        # === 7. Function Code Interpretation Table and Chart ===
         st.divider()
         st.subheader("🔍 Function Code Analysis")   
         
@@ -219,7 +215,7 @@ if page == "📊 Dashboard":
         }
 
         # Combine normal and anomaly data to see all unique function codes present
-        all_data = pd.concat([normal_df, anomaly_df], ignore_index=True)
+        all_data = anomaly_df # Only analyze codes associated with anomalies
         
         if 'function_code' in all_data.columns:
             # Extract unique codes and map them
@@ -329,7 +325,3 @@ elif page == "🤖 Cyber Assistant":
         st.session_state.messages.append({"role": "user", "content": user_input})
         st.session_state.generate_response = True
         st.rerun()
-
-
-
-
